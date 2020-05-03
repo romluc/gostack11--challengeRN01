@@ -25,7 +25,7 @@ export default function App() {
         const { id } = response.data;
         const repoIndex = repositories.findIndex((repo) => repo.id === id);
         const newRepo = response.data;
-        repositories.splice(repoIndex, 1, newRepo);
+        repositories.slice(repoIndex, 1, newRepo);
       })
       .catch((error) => {
         console.log('error:', error);
