@@ -12,24 +12,23 @@ import api from './services/api';
 
 export default function App() {
   const [repositories, setRepositories] = useState([]);
+
   useEffect(() => {
     api.get('/repositories').then((response) => {
       setRepositories(response.data);
     });
-  }, [repositories]);
+  }, []);
 
   async function handleLikeRepository(id) {
-    await api
-      .post(`/repositories/${id}/like`)
-      .then((response) => {
-        const { id } = response.data;
-        const repoIndex = repositories.findIndex((repo) => repo.id === id);
-        const newRepo = response.data;
-        repositories.slice(repoIndex, 1, newRepo);
-      })
-      .catch((error) => {
-        console.log('error:', error);
-      });
+    const response = await api.post(`/repositories/${id}/like`);
+
+    const tempArray = [...repositories];
+    const repoIndex = tempArray.findIndex((repo) => repo.id === id);
+
+    tempArray[repoIndex].likes++;
+    setRepositories(tempArray);
+
+    return response;
   }
 
   return (
@@ -52,13 +51,6 @@ export default function App() {
                       <Text style={styles.techText}>{tech}</Text>
                     </View>
                   ))}
-                  {/* <FlatList
-                    data={repository.techs}
-                    keyExtractor={(repository) => repository.id}
-                    renderItem={({ item: techs }) => (
-                      <Text style={styles.tech}>{techs}</Text>
-                    )}
-                  /> */}
                 </View>
 
                 <View style={styles.likesContainer}>
@@ -67,8 +59,8 @@ export default function App() {
                     style={styles.likeText}
                     testID={`repository-likes-${repository.id}`}
                   >
-                    {repository.likes}
-                    👍🏻
+                    {repository.likes} curtida
+                    {repository.likes !== 1 ? 's' : ''}
                   </Text>
                 </View>
                 <TouchableOpacity
